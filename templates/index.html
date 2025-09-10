@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{{ url_for('crear') }}" class="btn btn-success mb-3">➕ Nueva Venta</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Juego</th>
+            <th>Plataforma</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for venta in ventas %}
+        <tr>
+            <td>{{ venta.id_venta }}</td>
+            <td>{{ venta.nombre_juego }}</td>
+            <td>{{ venta.plataforma }}</td>
+            <td>${{ venta.precio }}</td>
+            <td>{{ venta.cantidad }}</td>
+            <td>{{ venta.fecha_venta.strftime('%Y-%m-%d') }}</td>
+            <td>
+                <a href="{{ url_for('editar', id=venta.id_venta) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
+                <form action="{{ url_for('eliminar', id=venta.id_venta) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
