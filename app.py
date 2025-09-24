@@ -21,8 +21,11 @@ class Venta(db.Model):
     id_venta = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre_juego = db.Column(db.String, nullable=False)
     plataforma = db.Column(db.String, nullable=False)
-    precio = db.Column(db.Float, nullable=False)
+    precio_unitario = db.Column(db.Float, nullable=False)
     cantidad = db.Column(db.Integer, nullable=False)
+    precio_total = db.Column(db.Float, nullable=False)
+    pago = db.Column(db.Float, nullable=False)
+    cambio = db.Column(db.Float, nullable=False)
     fecha_venta = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Crear las tablas si no existen
@@ -41,14 +44,21 @@ def crear():
     if request.method == 'POST':
         nombre_juego = request.form['nombre_juego']
         plataforma = request.form['plataforma']
-        precio = float(request.form['precio'])
+        precio_unitario = float(request.form['precio_unitario'])
         cantidad = int(request.form['cantidad'])
+        pago = float(request.form['pago'])
+
+        precio_total = precio_unitario * cantidad
+        cambio = pago - precio_total
 
         nueva_venta = Venta(
             nombre_juego=nombre_juego,
             plataforma=plataforma,
-            precio=precio,
-            cantidad=cantidad
+            precio_unitario=precio_unitario,
+            cantidad=cantidad,
+            precio_total=precio_total,
+            pago=pago,
+            cambio=cambio
         )
         db.session.add(nueva_venta)
         db.session.commit()
@@ -63,8 +73,14 @@ def editar(id):
     if request.method == 'POST':
         venta.nombre_juego = request.form['nombre_juego']
         venta.plataforma = request.form['plataforma']
-        venta.precio = float(request.form['precio'])
+        venta.precio_unitario = float(request.form['precio_unitario'])
         venta.cantidad = int(request.form['cantidad'])
+        venta.pago = float(request.form['pago'])
+
+        # Recalcular precio_total y cambio
+        venta.precio_total = venta.precio_unitario * venta.cantidad
+        venta.cambio = venta.pago - venta.precio_total
+
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('editar.html', venta=venta)
@@ -80,3 +96,4 @@ def eliminar(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
